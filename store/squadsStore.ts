@@ -121,11 +121,15 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
     const { currentSquad } = get();
     if (!currentSquad) return { error: new Error('Not in a squad') };
 
+    console.log('Leaving squad:', currentSquad.id, 'User:', userId);
+
     const { error } = await supabase
       .from('squad_members')
       .delete()
       .eq('squad_id', currentSquad.id)
       .eq('user_id', userId);
+
+    console.log('Leave error:', error);
 
     if (!error) {
       set({ currentSquad: null, members: [] });
@@ -137,12 +141,16 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
   fetchMembers: async (squadId) => {
     const yearStart = format(startOfYear(new Date()), 'yyyy-MM-dd');
 
-    const { data: members } = await supabase
+    console.log('Fetching members for squad:', squadId);
+
+    const { data: members, error: membersError } = await supabase
       .from('squad_members')
       .select('*')
       .eq('squad_id', squadId);
 
-    if (!members) {
+    console.log('Members data:', members, 'Error:', membersError);
+
+    if (!members || members.length === 0) {
       set({ members: [] });
       return;
     }
@@ -170,6 +178,7 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
     );
 
     const sorted = membersWithStats.sort((a, b) => b.total_entries - a.total_entries);
+    console.log('Final members:', sorted);
     set({ members: sorted });
   },
 }));
