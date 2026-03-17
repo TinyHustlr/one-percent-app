@@ -123,19 +123,21 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
 
     console.log('Leaving squad:', currentSquad.id, 'User:', userId);
 
+    // Try using delete directly with filter
     const { error } = await supabase
       .from('squad_members')
       .delete()
-      .eq('squad_id', currentSquad.id)
-      .eq('user_id', userId);
+      .match({ squad_id: currentSquad.id, user_id: userId });
 
     console.log('Leave error:', error);
 
-    if (!error) {
-      set({ currentSquad: null, members: [] });
+    if (error) {
+      console.log('Delete failed:', error);
+      return { error };
     }
 
-    return { error };
+    set({ currentSquad: null, members: [] });
+    return { error: null };
   },
 
   fetchMembers: async (squadId) => {
