@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -40,6 +41,25 @@ export default function LoginScreen() {
       }
     }
     
+    setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address first');
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'onepercent://(tabs)/profile',
+    });
+    
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      Alert.alert('Success', 'Check your email for password reset instructions');
+    }
     setLoading(false);
   };
 
@@ -83,6 +103,16 @@ export default function LoginScreen() {
               {loading ? 'Loading...' : isRegistering ? 'Sign Up' : 'Sign In'}
             </Text>
           </TouchableOpacity>
+
+          {!isRegistering && (
+            <TouchableOpacity 
+              style={styles.forgotButton}
+              onPress={handleForgotPassword}
+              disabled={loading}
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity 
             style={styles.switchButton}
@@ -147,6 +177,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  forgotButton: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  forgotText: {
+    color: '#007AFF',
+    fontSize: 14,
   },
   switchButton: {
     padding: 16,
