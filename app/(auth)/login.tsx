@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingVi
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import type { Session } from '@supabase/supabase-js';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,16 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     }
   }, [user]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'passwordRecovery') {
+        router.replace('/(auth)/reset-password');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -52,7 +63,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'onepercent://(tabs)/profile',
+      redirectTo: 'onepercent://',
     });
     
     if (error) {
