@@ -47,11 +47,14 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
   },
 
   createSquad: async (userId, name) => {
+    const inviteCode = Math.random().toString(36).substring(2, 10).toLowerCase();
+    
     const { data: squad, error } = await supabase
       .from('squads')
       .insert({
         name,
         created_by: userId,
+        invite_code: inviteCode,
       })
       .select()
       .single();
@@ -74,11 +77,15 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
   },
 
   joinSquad: async (userId, inviteCode) => {
+    console.log('Looking for squad with code:', inviteCode.toLowerCase());
+    
     const { data: squad, error: findError } = await supabase
       .from('squads')
       .select('*')
       .eq('invite_code', inviteCode.toLowerCase())
       .single();
+
+    console.log('Found squad:', squad, 'Error:', findError);
 
     if (findError || !squad) {
       return { error: new Error('Invalid invite code') };
