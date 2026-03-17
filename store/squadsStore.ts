@@ -48,6 +48,20 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
 
   createSquad: async (userId, name) => {
     const inviteCode = Math.random().toString(36).substring(2, 10).toLowerCase();
+
+    // First, leave any existing squad
+    const { data: existingMembership } = await supabase
+      .from('squad_members')
+      .select('squad_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (existingMembership) {
+      await supabase
+        .from('squad_members')
+        .delete()
+        .match({ squad_id: existingMembership.squad_id, user_id: userId });
+    }
     
     const { data: squad, error } = await supabase
       .from('squads')
@@ -79,6 +93,20 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
   joinSquad: async (userId, inviteCode) => {
     console.log('Looking for squad with code:', inviteCode.toLowerCase());
     
+    // First, leave any existing squad
+    const { data: existingMembership } = await supabase
+      .from('squad_members')
+      .select('squad_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (existingMembership) {
+      await supabase
+        .from('squad_members')
+        .delete()
+        .match({ squad_id: existingMembership.squad_id, user_id: userId });
+    }
+
     const { data: squad, error: findError } = await supabase
       .from('squads')
       .select('*')
