@@ -60,7 +60,10 @@ export default function SquadsScreen() {
           text: 'Leave', 
           style: 'destructive', 
           onPress: async () => {
-            await leaveSquad(user!.id);
+            const { error } = await leaveSquad(user!.id);
+            if (error) {
+              Alert.alert('Error', error.message);
+            }
           }
         },
       ]
