@@ -22,6 +22,31 @@ export default function SquadsScreen() {
       return;
     }
 
+    if (currentSquad) {
+      Alert.alert(
+        'Leave Current Squad?',
+        `You're already in "${currentSquad.name}". Creating a new squad will automatically leave this one. Continue?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Create New Squad', 
+            onPress: async () => {
+              setLoading(true);
+              const { error } = await createSquad(user!.id, squadName);
+              if (error) {
+                Alert.alert('Error', error.message);
+              } else {
+                setShowCreateModal(false);
+                setSquadName('');
+              }
+              setLoading(false);
+            }
+          },
+        ]
+      );
+      return;
+    }
+
     setLoading(true);
     const { error } = await createSquad(user!.id, squadName);
     if (error) {
@@ -36,6 +61,31 @@ export default function SquadsScreen() {
   const handleJoinSquad = async () => {
     if (!inviteCode.trim()) {
       Alert.alert('Error', 'Please enter an invite code');
+      return;
+    }
+
+    if (currentSquad) {
+      Alert.alert(
+        'Leave Current Squad?',
+        `You're already in "${currentSquad.name}". Joining a new squad will automatically leave this one. Continue?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Join New Squad', 
+            onPress: async () => {
+              setLoading(true);
+              const { error } = await joinSquad(user!.id, inviteCode);
+              if (error) {
+                Alert.alert('Error', error.message);
+              } else {
+                setShowJoinModal(false);
+                setInviteCode('');
+              }
+              setLoading(false);
+            }
+          },
+        ]
+      );
       return;
     }
 
