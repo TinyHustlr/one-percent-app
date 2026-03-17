@@ -139,17 +139,7 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
 
     const { data: members } = await supabase
       .from('squad_members')
-      .select(`
-        squad_id,
-        user_id,
-        joined_at,
-        profiles (
-          id,
-          username,
-          full_name,
-          avatar_url
-        )
-      `)
+      .select('*')
       .eq('squad_id', squadId);
 
     if (!members) {
@@ -165,8 +155,15 @@ export const useSquadsStore = create<SquadsState>((set, get) => ({
           .eq('user_id', member.user_id)
           .gte('date', yearStart);
 
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username, full_name')
+          .eq('id', member.user_id)
+          .single();
+
         return {
           ...member,
+          profiles: profile,
           total_entries: count ?? 0,
         } as SquadMemberWithStats;
       })
