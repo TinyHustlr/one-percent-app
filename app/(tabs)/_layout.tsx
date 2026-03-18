@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
-import { colors } from '../../lib/constants';
+import { useThemeStore } from '../../store/themeStore';
 
 export default function TabsLayout() {
   const { user, loading } = useAuthStore();
   const router = useRouter();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -16,17 +17,17 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.gray,
         tabBarStyle: {
-          backgroundColor: colors.white,
-          borderTopColor: colors.lightGray,
+          backgroundColor: theme.white,
+          borderTopColor: theme.lightGray,
         },
         headerStyle: {
-          backgroundColor: colors.white,
+          backgroundColor: theme.white,
         },
         headerTitleStyle: {
-          color: colors.dark,
+          color: theme.dark,
           fontWeight: '600',
         },
       }}

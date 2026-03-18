@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, Share, Modal } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useSquadsStore } from '../../store/squadsStore';
@@ -15,6 +15,16 @@ export default function SquadsScreen() {
   const [squadName, setSquadName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Auto-refresh leaderboard every 10 seconds
+  useEffect(() => {
+    if (currentSquad) {
+      const interval = setInterval(() => {
+        fetchMembers(currentSquad.id);
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [currentSquad?.id]);
 
   const handleCreateSquad = async () => {
     if (!squadName.trim()) {

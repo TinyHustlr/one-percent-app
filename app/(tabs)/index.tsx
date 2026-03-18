@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useEntriesStore } from '../../store/entriesStore';
-import { colors, categories } from '../../lib/constants';
+import { useThemeStore } from '../../store/themeStore';
+import { categories } from '../../lib/constants';
 import type { Category } from '../../types';
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
   const { todayEntry, entries, createEntry, getCategoryStats } = useEntriesStore();
+  const { theme } = useThemeStore();
   
   const [selectedCategory, setSelectedCategory] = useState<Category>('health');
   const [customCategory, setCustomCategory] = useState('');

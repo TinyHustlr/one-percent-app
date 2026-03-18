@@ -3,15 +3,17 @@ import { Stack } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useEntriesStore } from '../store/entriesStore';
 import { useSquadsStore } from '../store/squadsStore';
-import { colors } from '../lib/constants';
+import { useThemeStore } from '../store/themeStore';
 
 export default function RootLayout() {
   const { user, loading, initialize } = useAuthStore();
   const { fetchEntries, fetchTodayEntry } = useEntriesStore();
   const { fetchMySquad } = useSquadsStore();
+  const { theme, loadTheme } = useThemeStore();
 
   useEffect(() => {
     initialize();
+    loadTheme();
   }, []);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function RootLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
+        contentStyle: { backgroundColor: theme.background },
       }}
     >
       <Stack.Screen name="(auth)/login" />
