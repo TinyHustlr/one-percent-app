@@ -1,37 +1,38 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { useEntriesStore } from '../../store/entriesStore';
-import { colors } from '../../lib/constants';
+import { useThemeStore } from '../../store/themeStore';
 import type { Entry } from '../../types';
 
 export default function HistoryScreen() {
   const { entries, loading } = useEntriesStore();
+  const { theme } = useThemeStore();
 
   const renderEntry = ({ item }: { item: Entry }) => (
-    <View style={styles.entryCard}>
+    <View style={[styles.entryCard, { backgroundColor: theme.white }]}>
       <View style={styles.entryHeader}>
-        <Text style={styles.entryDate}>
+        <Text style={[styles.entryDate, { color: theme.gray }]}>
           {format(parseISO(item.date), 'EEEE, MMM d')}
         </Text>
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>
+        <View style={[styles.categoryBadge, { backgroundColor: theme.primary + '20' }]}>
+          <Text style={[styles.categoryText, { color: theme.primary }]}>
             {item.category === 'custom' ? item.custom_category : item.category}
           </Text>
         </View>
       </View>
-      <Text style={styles.entryContent}>{item.content}</Text>
+      <Text style={[styles.entryContent, { color: theme.dark }]}>{item.content}</Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>History</Text>
-      <Text style={styles.subtitle}>Your journey to 1% better</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.dark }]}>History</Text>
+      <Text style={[styles.subtitle, { color: theme.gray }]}>Your journey to 1% better</Text>
 
       {entries.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No entries yet</Text>
-          <Text style={styles.emptySubtext}>
+          <Text style={[styles.emptyText, { color: theme.dark }]}>No entries yet</Text>
+          <Text style={[styles.emptySubtext, { color: theme.gray }]}>
             Start by making your first entry on the Today tab
           </Text>
         </View>
@@ -51,24 +52,20 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
     padding: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: colors.dark,
   },
   subtitle: {
     fontSize: 16,
-    color: colors.gray,
     marginBottom: 24,
   },
   list: {
     gap: 12,
   },
   entryCard: {
-    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 16,
   },
@@ -80,23 +77,19 @@ const styles = StyleSheet.create({
   },
   entryDate: {
     fontSize: 14,
-    color: colors.gray,
   },
   categoryBadge: {
-    backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   categoryText: {
     fontSize: 12,
-    color: colors.primary,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
   entryContent: {
     fontSize: 16,
-    color: colors.dark,
     lineHeight: 24,
   },
   emptyState: {
@@ -107,12 +100,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.dark,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: colors.gray,
     textAlign: 'center',
   },
 });

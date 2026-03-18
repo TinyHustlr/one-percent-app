@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useEntriesStore } from '../../store/entriesStore';
-import { colors, categories } from '../../lib/constants';
+import { useThemeStore } from '../../store/themeStore';
+import { categories } from '../../lib/constants';
 import type { Category } from '../../types';
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
   const { todayEntry, entries, createEntry, getCategoryStats } = useEntriesStore();
+  const { theme } = useThemeStore();
   
   const [selectedCategory, setSelectedCategory] = useState<Category>('health');
   const [customCategory, setCustomCategory] = useState('');
@@ -153,7 +155,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: theme.background,
   },
   content: {
     padding: 20,
@@ -161,11 +163,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: colors.dark,
+    color: theme.dark,
   },
   subtitle: {
     fontSize: 16,
-    color: colors.gray,
+    color: theme.gray,
     marginBottom: 24,
   },
   form: {
@@ -174,7 +176,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.dark,
+    color: theme.dark,
     marginBottom: 8,
   },
   categoryGrid: {
@@ -186,36 +188,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: colors.white,
+    backgroundColor: theme.white,
     borderWidth: 1,
-    borderColor: colors.lightGray,
+    borderColor: theme.lightGray,
   },
   categoryButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   categoryText: {
     fontSize: 14,
-    color: colors.dark,
+    color: theme.dark,
   },
   categoryTextActive: {
-    color: colors.white,
+    color: theme.white,
   },
   input: {
-    backgroundColor: colors.white,
+    backgroundColor: theme.white,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: colors.dark,
+    color: theme.dark,
     borderWidth: 1,
-    borderColor: colors.lightGray,
+    borderColor: theme.lightGray,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
   },
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -225,12 +227,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: colors.white,
+    color: theme.white,
     fontSize: 16,
     fontWeight: '600',
   },
   completedCard: {
-    backgroundColor: colors.success + '15',
+    backgroundColor: theme.success + '15',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -238,18 +240,18 @@ const styles = StyleSheet.create({
   completedTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.success,
+    color: theme.success,
     marginBottom: 8,
   },
   completedCategory: {
     fontSize: 14,
-    color: colors.success,
+    color: theme.success,
     textTransform: 'capitalize',
     marginBottom: 8,
   },
   completedContent: {
     fontSize: 16,
-    color: colors.dark,
+    color: theme.dark,
   },
   statsSection: {
     marginTop: 32,
@@ -257,11 +259,11 @@ const styles = StyleSheet.create({
   statsTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.dark,
+    color: theme.dark,
     marginBottom: 16,
   },
   progressCard: {
-    backgroundColor: colors.white,
+    backgroundColor: theme.white,
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -270,27 +272,27 @@ const styles = StyleSheet.create({
   progressNumber: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: theme.primary,
   },
   progressLabel: {
     fontSize: 14,
-    color: colors.gray,
+    color: theme.gray,
     marginBottom: 16,
   },
   progressBar: {
     width: '100%',
     height: 8,
-    backgroundColor: colors.lightGray,
+    backgroundColor: theme.lightGray,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.primary,
+    backgroundColor: theme.primary,
     borderRadius: 4,
   },
   categoryStats: {
-    backgroundColor: colors.white,
+    backgroundColor: theme.white,
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -302,12 +304,12 @@ const styles = StyleSheet.create({
   },
   categoryStatLabel: {
     fontSize: 14,
-    color: colors.dark,
+    color: theme.dark,
     textTransform: 'capitalize',
   },
   categoryStatCount: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.primary,
+    color: theme.primary,
   },
 });
