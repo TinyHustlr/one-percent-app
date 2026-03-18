@@ -40,17 +40,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="history"
-        options={{
-          title: 'History',
-          tabBarLabel: 'History',
-        }}
-      />
-      <Tabs.Screen
         name="squads"
         options={{
           title: 'Squad',
           tabBarLabel: 'Squad',
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'History',
+          tabBarLabel: 'History',
         }}
       />
       <Tabs.Screen
