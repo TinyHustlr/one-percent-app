@@ -3,13 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, S
 import { useAuthStore } from '../../store/authStore';
 import { useSquadsStore } from '../../store/squadsStore';
 import { useEntriesStore } from '../../store/entriesStore';
-import { useThemeStore } from '../../store/themeStore';
+import { colors } from '../../lib/constants';
 
 export default function SquadsScreen() {
   const { user } = useAuthStore();
   const { currentSquad, members, createSquad, joinSquad, leaveSquad, fetchMembers } = useSquadsStore();
   const { entries } = useEntriesStore();
-  const { theme } = useThemeStore();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -297,17 +296,17 @@ export default function SquadsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
+    backgroundColor: colors.background,
     padding: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: theme.dark,
+    color: colors.dark,
   },
   subtitle: {
     fontSize: 16,
-    color: theme.gray,
+    color: colors.gray,
     marginBottom: 24,
   },
   emptyState: {
@@ -319,18 +318,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: theme.dark,
+    color: colors.dark,
     marginBottom: 12,
   },
   emptyText: {
     fontSize: 14,
-    color: theme.gray,
+    color: colors.gray,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 22,
   },
   primaryButton: {
-    backgroundColor: theme.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 32,
@@ -339,27 +338,27 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   primaryButtonText: {
-    color: theme.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: theme.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 32,
     width: '100%',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.primary,
+    borderColor: colors.primary,
   },
   secondaryButtonText: {
-    color: theme.primary,
+    color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
   squadHeader: {
-    backgroundColor: theme.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -367,7 +366,7 @@ const styles = StyleSheet.create({
   squadName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: theme.dark,
+    color: colors.dark,
     marginBottom: 8,
   },
   inviteRow: {
@@ -377,20 +376,20 @@ const styles = StyleSheet.create({
   },
   inviteCode: {
     fontSize: 16,
-    color: theme.primary,
+    color: colors.primary,
     fontWeight: '600',
-    backgroundColor: theme.primary + '15',
+    backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   shareText: {
-    color: theme.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '500',
   },
   yourStats: {
-    backgroundColor: theme.primary + '15',
+    backgroundColor: colors.primary + '15',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -398,25 +397,25 @@ const styles = StyleSheet.create({
   },
   yourStatsLabel: {
     fontSize: 14,
-    color: theme.primary,
+    color: colors.primary,
     marginBottom: 4,
   },
   yourStatsValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: theme.primary,
+    color: colors.primary,
   },
   leaderboardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: theme.dark,
+    color: colors.dark,
     marginBottom: 16,
   },
   list: {
     gap: 12,
   },
   memberCard: {
-    backgroundColor: theme.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
@@ -426,7 +425,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: theme.lightGray,
+    backgroundColor: colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -434,7 +433,7 @@ const styles = StyleSheet.create({
   rankText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: theme.dark,
+    color: colors.dark,
   },
   memberInfo: {
     flex: 1,
@@ -442,11 +441,11 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 16,
     fontWeight: '600',
-    color: theme.dark,
+    color: colors.dark,
   },
   memberEntries: {
     fontSize: 14,
-    color: theme.gray,
+    color: colors.gray,
   },
   leaveButton: {
     marginTop: 24,
@@ -454,7 +453,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   leaveText: {
-    color: theme.danger,
+    color: colors.danger,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -466,7 +465,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: theme.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -475,16 +474,16 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: theme.dark,
+    color: colors.dark,
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: theme.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: theme.dark,
+    color: colors.dark,
     marginBottom: 20,
   },
   modalButtons: {
@@ -496,10 +495,10 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     borderRadius: 12,
-    backgroundColor: theme.lightGray,
+    backgroundColor: colors.lightGray,
   },
   cancelText: {
-    color: theme.dark,
+    color: colors.dark,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -508,10 +507,10 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     borderRadius: 12,
-    backgroundColor: theme.primary,
+    backgroundColor: colors.primary,
   },
   confirmText: {
-    color: theme.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
