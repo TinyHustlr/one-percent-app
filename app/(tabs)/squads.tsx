@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, Share, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, Share, Modal, ScrollView } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useSquadsStore } from '../../store/squadsStore';
 import { useEntriesStore } from '../../store/entriesStore';
 import { colors } from '../../lib/constants';
+
+const RANK_EMOJIS = ['🥇', '🥈', '🥉'];
 
 export default function SquadsScreen() {
   const { user } = useAuthStore();
@@ -16,7 +18,6 @@ export default function SquadsScreen() {
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Auto-refresh leaderboard every 10 seconds
   useEffect(() => {
     if (currentSquad) {
       const interval = setInterval(() => {
@@ -142,69 +143,98 @@ export default function SquadsScreen() {
     }
   };
 
-  const renderMember = ({ item, index }: { item: typeof members[0]; index: number }) => (
-    <View style={styles.memberCard}>
-      <View style={styles.rankBadge}>
-        <Text style={styles.rankText}>#{index + 1}</Text>
+  const getRankStyle = (index: number) => {
+    if (index === 0) return { backgroundColor: '#FFD700' + '30', borderColor: '#FFD700' };
+    if (index === 1) return { backgroundColor: '#C0C0C0' + '30', borderColor: '#C0C0C0' };
+    if (index === 2) return { backgroundColor: '#CD7F32' + '30', borderColor: '#CD7F32' };
+    return { backgroundColor: colors.card, borderColor: colors.border };
+  };
+
+  const renderMember = ({ item, index }: { item: typeof members[0]; index: number }) => {
+    const isCurrentUser = item.user_id === user?.id;
+    const rankStyle = getRankStyle(index);
+    
+    return (
+      <View style={[styles.memberCard, rankStyle]}>
+        <View style={styles.rankContainer}>
+          {index < 3 ? (
+            <Text style={styles.rankEmoji}>{RANK_EMOJIS[index]}</Text>
+          ) : (
+            <View style={styles.rankBadge}>
+              <Text style={styles.rankNumber}>#{index + 1}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.memberInfo}>
+          <View style={styles.nameRow}>
+            <Text style={styles.memberName}>
+              {item.profiles?.username || item.profiles?.full_name || 'Unknown'}
+            </Text>
+            {isCurrentUser && <View style={styles.youBadge}><Text style={styles.youText}>YOU</Text></View>}
+          </View>
+          <View style={styles.progressRow}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${Math.min((item.total_entries / 365) * 100, 100)}%` }]} />
+            </View>
+            <Text style={styles.memberXP}>{item.total_entries} XP</Text>
+          </View>
+        </View>
       </View>
-      <View style={styles.memberInfo}>
-        <Text style={styles.memberName}>
-          {item.profiles?.username || item.profiles?.full_name || 'Unknown'}
-          {item.user_id === user?.id && ' (You)'}
-        </Text>
-        <Text style={styles.memberEntries}>{item.total_entries}% this year</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   if (!currentSquad) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Squads</Text>
-        <Text style={styles.subtitle}>Team up to get 1% better together</Text>
-
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>You're not in a squad yet</Text>
-          <Text style={styles.emptyText}>
-            Create a squad or join one with an invite code. Max 4 members per squad.
-          </Text>
-
-          <TouchableOpacity 
-            style={styles.primaryButton}
-            onPress={() => setShowCreateModal(true)}
-          >
-            <Text style={styles.primaryButtonText}>Create Squad</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.secondaryButton}
-            onPress={() => setShowJoinModal(true)}
-          >
-            <Text style={styles.secondaryButtonText}>Join Squad</Text>
-          </TouchableOpacity>
+        <View style={styles.header}>
+          <Text style={styles.title}>Squad</Text>
+          <Text style={styles.subtitle}>Team up. Get better. Together.</Text>
         </View>
 
-        {/* Create Modal */}
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyIcon}>👥</Text>
+            <Text style={styles.emptyTitle}>No Squad Yet</Text>
+            <Text style={styles.emptyText}>
+              Create a squad to compete with your friends or join an existing one
+            </Text>
+            
+            <TouchableOpacity 
+              style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+              onPress={() => setShowCreateModal(true)}
+            >
+              <Text style={styles.primaryButtonText}>Create Squad</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.secondaryButton, { borderColor: colors.primary }]}
+              onPress={() => setShowJoinModal(true)}
+            >
+              <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Join Squad</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <Modal visible={showCreateModal} animationType="slide" transparent>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Create Squad</Text>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.white }]}>Create Squad</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background, color: colors.white, borderColor: colors.border }]}
                 placeholder="Squad name"
+                placeholderTextColor={colors.gray}
                 value={squadName}
                 onChangeText={setSquadName}
-                placeholderTextColor="#999"
               />
               <View style={styles.modalButtons}>
                 <TouchableOpacity 
-                  style={styles.cancelButton}
+                  style={[styles.cancelButton, { backgroundColor: colors.lightGray }]}
                   onPress={() => setShowCreateModal(false)}
                 >
-                  <Text style={styles.cancelText}>Cancel</Text>
+                  <Text style={[styles.cancelText, { color: colors.white }]}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={styles.confirmButton}
+                  style={[styles.confirmButton, { backgroundColor: colors.primary }]}
                   onPress={handleCreateSquad}
                   disabled={loading}
                 >
@@ -217,28 +247,27 @@ export default function SquadsScreen() {
           </View>
         </Modal>
 
-        {/* Join Modal */}
         <Modal visible={showJoinModal} animationType="slide" transparent>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Join Squad</Text>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.white }]}>Join Squad</Text>
               <TextInput
-                style={styles.input}
-                placeholder="Invite code"
+                style={[styles.input, { backgroundColor: colors.background, color: colors.white, borderColor: colors.border }]}
+                placeholder="Enter invite code"
+                placeholderTextColor={colors.gray}
                 value={inviteCode}
                 onChangeText={setInviteCode}
                 autoCapitalize="none"
-                placeholderTextColor="#999"
               />
               <View style={styles.modalButtons}>
                 <TouchableOpacity 
-                  style={styles.cancelButton}
+                  style={[styles.cancelButton, { backgroundColor: colors.lightGray }]}
                   onPress={() => setShowJoinModal(false)}
                 >
-                  <Text style={styles.cancelText}>Cancel</Text>
+                  <Text style={[styles.cancelText, { color: colors.white }]}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={styles.confirmButton}
+                  style={[styles.confirmButton, { backgroundColor: colors.primary }]}
                   onPress={handleJoinSquad}
                   disabled={loading}
                 >
@@ -256,24 +285,35 @@ export default function SquadsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Squad</Text>
-      
-      <View style={styles.squadHeader}>
-        <Text style={styles.squadName}>{currentSquad.name}</Text>
-        <View style={styles.inviteRow}>
-          <Text style={styles.inviteCode}>{currentSquad.invite_code}</Text>
-          <TouchableOpacity onPress={handleShareInvite}>
-            <Text style={styles.shareText}>Share</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>{currentSquad.name}</Text>
+        <View style={styles.inviteSection}>
+          <View style={styles.inviteBadge}>
+            <Text style={styles.inviteLabel}>CODE</Text>
+            <Text style={styles.inviteCode}>{currentSquad.invite_code}</Text>
+          </View>
+          <TouchableOpacity style={styles.shareButton} onPress={handleShareInvite}>
+            <Text style={styles.shareText}>📤 Share</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.yourStats}>
-        <Text style={styles.yourStatsLabel}>Your Progress This Year</Text>
-        <Text style={styles.yourStatsValue}>{entries.length}%</Text>
+      <View style={styles.yourStatsCard}>
+        <Text style={styles.yourStatsLabel}>Your Progress</Text>
+        <View style={styles.yourStatsRow}>
+          <Text style={styles.yourStatsValue}>{entries.length}</Text>
+          <Text style={styles.yourStatsUnit}>XP</Text>
+        </View>
+        <View style={styles.progressBarLarge}>
+          <View style={[styles.progressFillLarge, { width: `${Math.min((entries.length / 365) * 100, 100)}%`, backgroundColor: colors.primary }]} />
+        </View>
+        <Text style={styles.progressLabel}>{entries.length} / 365 days</Text>
       </View>
 
-      <Text style={styles.leaderboardTitle}>Leaderboard</Text>
+      <View style={styles.leaderboardSection}>
+        <Text style={styles.leaderboardTitle}>Leaderboard</Text>
+        <Text style={styles.leaderboardSubtitle}>{members.length} / 4 members</Text>
+      </View>
       
       <FlatList
         data={members}
@@ -281,14 +321,15 @@ export default function SquadsScreen() {
         renderItem={renderMember}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          <TouchableOpacity 
+            style={styles.leaveButton}
+            onPress={handleLeaveSquad}
+          >
+            <Text style={styles.leaveText}>Leave Squad</Text>
+          </TouchableOpacity>
+        }
       />
-
-      <TouchableOpacity 
-        style={styles.leaveButton}
-        onPress={handleLeaveSquad}
-      >
-        <Text style={styles.leaveText}>Leave Squad</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -297,129 +338,131 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: 20,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: colors.dark,
+    color: colors.white,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
-    color: colors.gray,
-    marginBottom: 24,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.dark,
-    marginBottom: 12,
-  },
-  emptyText: {
     fontSize: 14,
     color: colors.gray,
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 22,
   },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryButton: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    width: '100%',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  secondaryButtonText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  squadHeader: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-  },
-  squadName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.dark,
-    marginBottom: 8,
-  },
-  inviteRow: {
+  inviteSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 16,
+    gap: 12,
+  },
+  inviteBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    gap: 8,
+  },
+  inviteLabel: {
+    fontSize: 10,
+    color: colors.gray,
+    fontWeight: '600',
   },
   inviteCode: {
     fontSize: 16,
     color: colors.primary,
-    fontWeight: '600',
-    backgroundColor: colors.primary + '15',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+  },
+  shareButton: {
+    padding: 8,
   },
   shareText: {
-    color: colors.primary,
     fontSize: 14,
-    fontWeight: '500',
+    color: colors.primary,
+    fontWeight: '600',
   },
-  yourStats: {
-    backgroundColor: colors.primary + '15',
-    borderRadius: 16,
+  yourStatsCard: {
+    marginHorizontal: 20,
+    backgroundColor: colors.card,
+    borderRadius: 20,
     padding: 20,
-    alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   yourStatsLabel: {
     fontSize: 14,
-    color: colors.primary,
-    marginBottom: 4,
+    color: colors.gray,
+    marginBottom: 8,
+  },
+  yourStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 16,
   },
   yourStatsValue: {
-    fontSize: 32,
+    fontSize: 48,
     fontWeight: 'bold',
     color: colors.primary,
+  },
+  yourStatsUnit: {
+    fontSize: 20,
+    color: colors.gray,
+    marginLeft: 6,
+  },
+  progressBarLarge: {
+    height: 8,
+    backgroundColor: colors.lightGray,
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressFillLarge: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressLabel: {
+    fontSize: 12,
+    color: colors.gray,
+    textAlign: 'center',
+  },
+  leaderboardSection: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
   },
   leaderboardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.dark,
-    marginBottom: 16,
+    color: colors.white,
+  },
+  leaderboardSubtitle: {
+    fontSize: 12,
+    color: colors.gray,
   },
   list: {
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   memberCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+  },
+  rankContainer: {
+    marginRight: 14,
+  },
+  rankEmoji: {
+    fontSize: 28,
   },
   rankBadge: {
     width: 36,
@@ -428,63 +471,149 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
-  rankText: {
+  rankNumber: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: colors.dark,
+    color: colors.white,
   },
   memberInfo: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
   memberName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.dark,
+    color: colors.white,
   },
-  memberEntries: {
+  youBadge: {
+    backgroundColor: colors.primary + '30',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  youText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  progressBar: {
+    flex: 1,
+    height: 6,
+    backgroundColor: colors.lightGray,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 3,
+  },
+  memberXP: {
     fontSize: 14,
-    color: colors.gray,
+    fontWeight: 'bold',
+    color: colors.primary,
+    minWidth: 50,
+    textAlign: 'right',
   },
   leaveButton: {
-    marginTop: 24,
+    marginTop: 20,
     padding: 16,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: 12,
   },
   leaveText: {
     color: colors.danger,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyCard: {
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: 32,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.white,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.gray,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  primaryButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  primaryButtonText: {
+    color: colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  secondaryButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 24,
-    width: '100%',
-    maxWidth: 400,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.dark,
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: colors.dark,
     marginBottom: 20,
+    borderWidth: 1,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -492,25 +621,22 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    padding: 16,
-    alignItems: 'center',
+    paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: colors.lightGray,
+    alignItems: 'center',
   },
   cancelText: {
-    color: colors.dark,
     fontSize: 16,
     fontWeight: '600',
   },
   confirmButton: {
     flex: 1,
-    padding: 16,
-    alignItems: 'center',
+    paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: colors.primary,
+    alignItems: 'center',
   },
   confirmText: {
-    color: colors.white,
+    color: colors.background,
     fontSize: 16,
     fontWeight: '600',
   },

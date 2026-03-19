@@ -10,6 +10,8 @@ interface EntriesState {
   fetchEntries: (userId: string) => Promise<void>;
   fetchTodayEntry: (userId: string) => Promise<void>;
   createEntry: (userId: string, category: Category, customCategory: string | null, content: string) => Promise<{ error: Error | null }>;
+  updateEntry: (entryId: string, content: string, category?: Category, customCategory?: string | null) => Promise<{ error: Error | null }>;
+  deleteEntry: (entryId: string, userId: string) => Promise<{ error: Error | null }>;
   getCategoryStats: () => CategoryStats[];
 }
 
@@ -70,6 +72,45 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
 
     if (!error) {
       await get().fetchEntries(userId);
+      await get().fetchTodayEntry(userId);
+    }
+
+    return { error };
+  },
+
+  updateEntry: async (entryId, content, category, customCategory) => {
+    const updates: Partial<Entry> = { content };
+    
+    if (category) {
+      updates.category = category;
+      updates.custom_category = category === 'custom' ? customCategory : null;
+    }
+
+    const { error } = await supabase
+      .from('entries')
+      .update(updates)
+      .eq('id', entryId);
+
+    if (!error) {
+      const { entries } = get();
+      const updatedEntries = entries.map(e => 
+        e.id === entryId ? { ...e, ...updates } : e
+      );
+      set({ entries: updatedEntries });
+    }
+
+    return { error };
+  },
+
+  deleteEntry: async (entryId, userId) => {
+    const { error } = await supabase
+      .from('entries')
+      .delete()
+      .eq('id', entryId);
+
+    if (!error) {
+      const { entries } = get();
+      set({ entries: entries.filter(e => e.id !== entryId) });
       await get().fetchTodayEntry(userId);
     }
 
